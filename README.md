@@ -26,6 +26,8 @@ The following software  is necessary to build the project. The code does not ins
 - Stata (code was last run using version 17)
     - estout
 - Python (code was last run using Anaconda Python 3.8.5, which should come with most of the required packages by default.) **IMPORTANT: The waf-template will not run under Python 3.11**
+    - numpy 
+    - pandas 
 - Matlab (code was last run using Release 2020a)
 - R (code was last run using version 4.2)
     - apsrtable
