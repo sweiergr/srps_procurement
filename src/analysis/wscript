@@ -1,0 +1,268 @@
+#! python
+def build(ctx):
+
+    ctx(
+        features='run_do_script',
+        source='check_DB_entrant_bidspread.do',
+        target=[
+            ctx.path_to(ctx, 'OUT_DATA', 'grossauctions_2.csv'),
+            ctx.path_to(ctx, 'OUT_FIGURES', 'winningbidcontracts.pdf'),
+            ctx.path_to(ctx, 'OUT_FIGURES', 'winningbidlines.pdf'),
+            ctx.path_to(ctx, 'OUT_FIGURES', 'cdf_bid_win_db.pdf'),
+            ctx.path_to(ctx, 'OUT_FIGURES', 'cdf_bid_win_entrant.pdf')
+        ],
+        deps=[ctx.path_to(ctx, 'IN_DATA', 'spnv_hauptbank.dta')],
+        name='check_DB_entrant_bidspread'
+    )
+
+    ctx(
+        features='run_do_script',
+        source='descriptive_statistics.do',
+        target=[ctx.path_to(ctx, 'OUT_ANALYSIS', 'log', 'descriptive_statistics.log'),
+                ctx.path_to(ctx,'OUT_DATA','rf_regdata.dta'),
+                ctx.path_to(ctx,'OUT_TABLES','descriptivessplit.tex'),
+                ctx.path_to(ctx,'OUT_TABLES','descriptivesfull.tex'),
+                ctx.path_to(ctx,'OUT_TABLES','descriptivesgross.tex'),
+                ctx.path_to(ctx,'OUT_TABLES','descriptivesnet.tex'),
+                ctx.path_to(ctx,'OUT_TABLES','comparegrossnetbids.tex')
+        ],
+        deps=[ctx.path_to(ctx, 'OUT_DATA', 'ga_export.dta'),
+              ctx.path_to(ctx, 'OUT_DATA', 'na_export.dta')
+        ],
+        name='descriptive_statistics'
+    )
+
+    ctx(
+        features='run_r_script',
+        source='descriptive_statistics.R',
+        target=[ctx.path_to(ctx, 'OUT_TABLES', 'dssplitnew.tex'),
+                ctx.path_to(ctx, 'OUT_TABLES', 'dssplitnewNoOutlier.tex'),
+                ctx.path_to(ctx, 'OUT_TABLES', 'ttesttrackchar.tex'),
+                ctx.path_to(ctx, 'OUT_TABLES', 'ttesttrackcharNoOutlier.tex')
+                ],
+        deps=[
+            ctx.path_to(ctx, 'OUT_DATA', 'ga_export.dta'),
+            ctx.path_to(ctx, 'OUT_DATA', 'na_export.dta')                        
+            ]
+    )  
+
+    ctx(
+        features='run_do_script',
+        source='reducedformevidence.do',
+        target=[ctx.path_to(ctx, 'OUT_ANALYSIS', 'log', 'reducedformevidence.log'),
+                ctx.path_to(ctx,'OUT_TABLES','rfbidsn.tex'),
+                ctx.path_to(ctx,'OUT_TABLES','rfdbwinauctionmode.tex')
+        ],
+        deps=[ctx.path_to(ctx, 'OUT_DATA', 'rf_regdata.dta')
+        ],
+        name='reducedformevidence'
+    )
+
+    ctx(
+        features='run_m_script',
+        source='estimate_gross_auctions.m',
+        deps=[
+            ctx.path_to(ctx, 'OUT_DATA', 'ga_matlab.csv'),
+            ctx.path_to(ctx,'IN_ANALYSIS','neg_log_ll.m')            
+        ],
+        target=[
+            ctx.path_to(ctx, 'OUT_TABLES', 'resultsgross.tex'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'ga_est_results.mat'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'erbf_gross.csv'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'grossauction_workspace.mat'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'erbf_gross_legend.csv'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'rca_data_gross.mat')                        
+            ]
+        )
+
+    ctx(
+        features='run_m_script',
+        source='estimate_net_auctions.m',
+        deps=[
+            ctx.path_to(ctx, 'OUT_DATA', 'na_matlab.csv'),
+            ctx.path_to(ctx,'IN_ANALYSIS','neg_log_ll.m')            
+        ],
+        target=[ctx.path_to(ctx, 'OUT_TABLES', 'resultsnet.tex'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'na_2step.mat'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'erbf_net.csv'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'net_step1.mat'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'erbf_net_legend.csv')
+        ]
+    )
+
+    ctx(
+        features='run_m_script',
+        source='net_cost_estimation.m',
+        deps=[ctx.path_to(ctx, 'OUT_ANALYSIS', 'ga_est_results.mat'),
+                ctx.path_to(ctx, 'OUT_ANALYSIS', 'na_2step.mat')
+                ],
+        target=[
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'net_cost_estimation.mat'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'cq_clean_net.mat'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'rca_data_net.mat')                        
+            ]
+    )  
+
+    ctx(
+        features='run_m_script',
+        source='net_revenue_estimation.m',
+        deps=[ctx.path_to(ctx, 'OUT_ANALYSIS', 'net_cost_estimation.mat')],
+        # Technically, this doesn't contain all the targets, but these are not needed in the final paper/project.
+        target=[
+            ctx.path_to(ctx, 'OUT_TABLES', 'resultsalpha.tex'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'er_net2.csv'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'theta_net2.mat'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'er_net2_legend.csv'),
+            ctx.path_to(ctx, 'OUT_FIGURES', 'hist_ratio_revbid.pdf'),
+            ctx.path_to(ctx, 'OUT_FIGURES', 'hist_ratio_revbid_clean.pdf'),
+            ctx.path_to(ctx, 'OUT_FIGURES', 'hist_ratio_revcost.pdf'),
+            ctx.path_to(ctx, 'OUT_FIGURES', 'hist_ratio_revcost_clean.pdf'),
+
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'postestimation_workspace_net.mat')
+            ]
+        )    
+
+    ctx(
+        features='run_m_script',
+        source='compute_netbf.m',
+        deps=[ctx.path_to(ctx, 'OUT_ANALYSIS', 'postestimation_workspace_net.mat')
+                ],
+        target=[
+            ctx.path_to(ctx, 'OUT_FIGURES', 'bf_net_rho1.pdf'),
+            ctx.path_to(ctx, 'OUT_FIGURES', 'bf_net_rho_comb1.pdf')
+            ]
+        ) 
+
+# Files for entry estimation.
+    ctx(
+        features='run_m_script',
+        source='estimate_entry_probs.m',
+        deps=[
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'grossauction_workspace.mat'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'net_step1.mat'),
+            ctx.path_to(ctx,'IN_ANALYSIS','neg_log_ll_entry.m')            
+        ],
+        target=[ctx.path_to(ctx,'OUT_ANALYSIS','joint_entry_q_parameters.mat'),
+                ctx.path_to(ctx,'OUT_ANALYSIS','joint_entry_char.mat'),
+                ctx.path_to(ctx,'OUT_ANALYSIS','joint_entry_npot.mat'),
+                ctx.path_to(ctx,'OUT_ANALYSIS','ga_entry_npot.mat'),
+                ctx.path_to(ctx,'OUT_ANALYSIS','na_entry_npot.mat'),
+                ctx.path_to(ctx, 'OUT_ANALYSIS', 'entry_probs_joint_workspace.mat'),
+                ctx.path_to(ctx, 'OUT_ANALYSIS', 'ga_entry_n_probs.mat'),
+                ctx.path_to(ctx, 'OUT_ANALYSIS', 'na_entry_n_probs.mat'),
+                ctx.path_to(ctx, 'OUT_ANALYSIS', 'cfnetgross_entry_n_probs.mat')
+        ]
+    )
+
+    ctx(
+        features='run_m_script',
+        source='estimate_entry_ga.m',
+        deps=[
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'grossauction_workspace.mat'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'ga_entry_n_probs.mat')
+        ],
+        target=[ctx.path_to(ctx, 'OUT_ANALYSIS', 'grossauction_workspace_entry.mat'),
+                ctx.path_to(ctx, 'OUT_FIGURES', 'entry_cost_gross_hist.pdf'),
+                ctx.path_to(ctx, 'OUT_ANALYSIS', 'entry_results_gross.csv'),
+                ctx.path_to(ctx, 'OUT_FIGURES', 'entry_cost_rel_gross_hist.pdf'),
+                ctx.path_to(ctx, 'OUT_FIGURES', 'entry_cost_gross_timesplit_hist.pdf')
+        ]
+    )
+
+    ctx(
+        features='run_m_script',
+        source='estimate_entry_na.m',
+        deps=[
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'net_step1.mat'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'na_entry_n_probs.mat')
+        ],
+        target=[ctx.path_to(ctx, 'OUT_ANALYSIS', 'netauction_workspace_entry.mat'),
+                ctx.path_to(ctx, 'OUT_ANALYSIS', 'entry_results_net.csv'),
+                ctx.path_to(ctx, 'OUT_FIGURES', 'entry_cost_net_hist.pdf'),
+                ctx.path_to(ctx, 'OUT_FIGURES', 'entry_cost_rel_net_hist.pdf'),
+                ctx.path_to(ctx, 'OUT_FIGURES', 'entry_cost_net_timesplit_hist.pdf')
+        ]
+    )
+
+# Counterfactual code and efficiency computations.
+    ctx(
+        features='run_m_script',
+        source='compute_pr_eff_gross.m',
+        deps=[
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'theta_net2.mat'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'grossauction_workspace.mat'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'ga_entry_n_probs.mat'),
+            ctx.path_to(ctx,'OUT_ANALYSIS','ga_entry_npot.mat')],
+        target=[
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'cf_prep_gross_auctions.mat'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'rev_est_gross.mat')
+            ]
+        )
+    
+    ctx(
+        features='run_m_script',
+        source='compute_pr_eff_net.m',
+        deps=[
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'net_step1.mat'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'postestimation_workspace_net.mat'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'na_entry_n_probs.mat'),
+            ctx.path_to(ctx,'OUT_ANALYSIS','na_entry_npot.mat')],
+        target=[
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'cf_prep_net_auctions.mat')
+            ]
+        )
+
+    ctx(
+        features='run_m_script',
+        source='compute_pr_eff_cfnetgross.m',
+        deps=[
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'cfnetgross_entry_n_probs.mat'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'postestimation_workspace_net.mat'),
+            ctx.path_to(ctx,'OUT_ANALYSIS','na_entry_npot.mat')],
+        target=[
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'cf_prep_cfnetgross_auctions.mat')
+            ]
+        )
+
+    ctx(
+        features='run_m_script',
+        source='counterfactuals_summary.m',
+        deps=[
+        ctx.path_to(ctx, 'OUT_ANALYSIS', 'cf_prep_gross_auctions.mat'),
+        ctx.path_to(ctx, 'OUT_ANALYSIS', 'cf_prep_net_auctions.mat'),
+        ctx.path_to(ctx, 'OUT_ANALYSIS', 'cf_prep_cfnetgross_auctions.mat')
+        ],
+        target=[
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'cf_compare_stats.log'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'postcounterfactual_workspace.mat'),
+            # CF Version with ENDOGENOUS N.
+            ctx.path_to(ctx, 'OUT_TABLES', 'resultscfrev.tex'),
+            ctx.path_to(ctx, 'OUT_TABLES', 'resultscfeff.tex'),
+            ctx.path_to(ctx, 'OUT_FIGURES', 'hist_rel_eff_gain.pdf'),
+            ctx.path_to(ctx, 'OUT_FIGURES', 'hist_eff.pdf'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'cf_eff_data.csv'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'cf_eff_data_n.csv'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'cf_rev_data.csv'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'cf_rev_data_median.csv'),
+            # CF Version with CONSTANT N.
+            ctx.path_to(ctx, 'OUT_TABLES', 'resultscfrevconsn.tex'),
+            ctx.path_to(ctx, 'OUT_TABLES', 'resultscfeffconsn.tex'),
+            ctx.path_to(ctx, 'OUT_FIGURES', 'hist_rel_eff_gain_cons_n.pdf'),
+            ctx.path_to(ctx, 'OUT_FIGURES', 'hist_eff_cons_n.pdf'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'cf_eff_data_cons_n.csv'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'cf_eff_data_n_cons_n.csv'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'cf_rev_data_cons_n.csv'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'cf_rev_data_median_cons_n.csv')
+            ]
+        )
+
+    ctx(
+        features='run_m_script',
+        source='counterfactuals_netgross_2.m',
+        deps=[ctx.path_to(ctx, 'OUT_ANALYSIS', 'net_cost_estimation.mat'),
+              ctx.path_to(ctx, 'OUT_ANALYSIS', 'postestimation_workspace_net.mat')],
+        target=[
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'counterfactuals_netgross_2.log'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'cf_2_eff_data.csv')
+            ]
+        )

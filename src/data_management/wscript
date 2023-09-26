@@ -1,0 +1,190 @@
+#! python
+
+
+def build(ctx):
+
+    ctx(
+        features='run_do_script',
+        source='import_n_pot.do',
+        target=[
+            ctx.path_to(ctx, 'OUT_DATA', 'log', 'import_n_pot.log'),
+            ctx.path_to(ctx, 'OUT_DATA', 'n_pot_ga.dta'),
+            ctx.path_to(ctx, 'OUT_DATA', 'n_pot_na.dta')
+        ],
+        deps=[ctx.path_to(ctx, 'IN_DATA', 'ga_pot_bidders.xlsx'),
+                ctx.path_to(ctx, 'IN_DATA', 'na_pot_bidders.xlsx')
+              ],
+        name='import_n_pot'
+    )
+
+    ctx(
+        features='run_do_script',
+        source='import_einwohner.do',
+        target=[
+            ctx.path_to(ctx, 'OUT_DATA', 'log', 'import_einwohner.log'),
+            ctx.path_to(ctx, 'OUT_DATA', 'bevoelkerungkkz.dta')
+        ],
+        deps=[ctx.path_to(ctx, 'IN_DATA', 'BevoelkerungKKZ.dta')
+              ],
+        name='import_einwohner'
+    )
+
+    ctx(
+        features='run_do_script',
+        source='import_einkommen.do',
+        target=[
+        ctx.path_to(ctx, 'OUT_DATA', 'log', 'import_einkommen.log'),
+            ctx.path_to(ctx, 'OUT_DATA', 'einkommen.dta')
+        ],
+        deps=[ctx.path_to(ctx, 'IN_DATA', 'einkommen.xlsx')
+              ],
+        name='import_einkommen'
+    )
+
+    ctx(
+        features='run_do_script',
+        source='import_flaeche.do',
+        target=[
+        ctx.path_to(ctx, 'OUT_DATA', 'log', 'import_flaeche.log'),
+            ctx.path_to(ctx, 'OUT_DATA', 'flaeche.dta')
+        ],
+        deps=[ctx.path_to(ctx, 'IN_DATA', 'flaeche.xlsx')
+              ],
+        name='import_flaeche'
+    )
+
+    ctx(
+        features='run_do_script',
+        source='clean_data.do',
+        target=[
+            ctx.path_to(ctx, 'OUT_DATA', 'log', 'clean_data.log'),
+            ctx.path_to(ctx, 'OUT_DATA', 'gross_auctions.dta'),
+            ctx.path_to(ctx, 'OUT_DATA', 'net_auctions.dta'),
+            ctx.path_to(ctx, 'OUT_DATA', 'direct_negotiations.dta'),
+            ctx.path_to(ctx, 'OUT_DATA', 'spnv_hauptbank_clean.dta')
+        ],
+        deps=[ctx.path_to(ctx, 'IN_DATA', 'spnv_hauptbank.dta'),
+              ctx.path_to(ctx, 'IN_DATA', 'na_ids.dta')
+              ],
+        name='clean_data'
+    )
+
+    ctx(
+        features='run_do_script',
+        source='prepare_grossauctions_for_costdata.do',
+        target=[
+            ctx.path_to(ctx, 'OUT_DATA', 'log', 'prepare_grossauctions_for_costdata.log'),
+            ctx.path_to(ctx, 'OUT_DATA', 'ga_with_costdata.dta'),
+            ctx.path_to(ctx, 'OUT_DATA', 'ga_fill_costdata.dta')
+        ],
+        deps=[ctx.path_to(ctx, 'IN_DATA', 'gross_auctions_with_nkmcost.dta'),
+                ctx.path_to(ctx, 'OUT_DATA', 'gross_auctions.dta')],
+        name='prepare_grossauctions_for_costdata'
+    )
+
+    ctx(
+        features='run_do_script',
+        source='prepare_netauctions_for_costdata.do',
+        target=[
+            ctx.path_to(ctx, 'OUT_DATA', 'log', 'prepare_netauctions_for_costdata.log'),
+            ctx.path_to(ctx, 'OUT_DATA', 'na_with_costdata.dta'),
+            ctx.path_to(ctx, 'OUT_DATA', 'na_fill_costdata.dta')
+        ],
+        deps=[ctx.path_to(ctx, 'OUT_DATA', 'net_auctions.dta')],
+        name='prepare_netauctions_for_costdata'
+    )
+       
+    ctx(  
+        features='run_do_script',
+        source='import_cost_data_ga.do',
+        target=[
+            ctx.path_to(ctx, 'OUT_DATA', 'log', 'import_cost_data_ga.log'),
+            ctx.path_to(ctx, 'OUT_DATA', 'ga_costfrequencydata.dta')
+        ],
+        deps=[ctx.path_to(ctx, 'IN_DATA', 'costdata_ga.xlsx')],
+        name='import_cost_data_ga'
+    )
+
+    ctx(
+        features='run_do_script',
+        source='import_cost_data_dn.do',
+        target=[
+            ctx.path_to(ctx, 'OUT_DATA', 'log', 'import_cost_data_dn.log'),
+            ctx.path_to(ctx, 'OUT_DATA', 'dn_costfrequencydata.dta')
+        ],
+        deps=[ctx.path_to(ctx, 'IN_DATA', 'fill_cost_data_negotiations_edited.xlsx')],
+        name='import_cost_data_dn'
+    )
+
+    ctx(  
+        features='run_do_script',
+        source='import_cost_data_na.do',
+        target=[
+            ctx.path_to(ctx, 'OUT_DATA', 'log', 'import_cost_data_na.log'),
+            ctx.path_to(ctx, 'OUT_DATA', 'na_costfrequencydata.dta')
+        ],
+        deps=[ctx.path_to(ctx, 'IN_DATA', 'costdata_na.xlsx')],
+        name='import_cost_data_na'
+    )
+
+    ctx(  
+        features='run_do_script',
+        source='import_kkz.do',
+        target=[
+           ctx.path_to(ctx, 'OUT_DATA', 'log', 'import_kkz.log'),
+            ctx.path_to(ctx, 'OUT_DATA', 'vergabe_kkz_list.dta')
+        ],
+        deps=[ctx.path_to(ctx, 'IN_DATA', 'vergabe_kkz.xlsx')],
+        name='import_kkz'
+    )
+
+    ctx(
+        features='run_do_script',
+        source='merge_track_char.do',
+        target=[
+            ctx.path_to(ctx, 'OUT_DATA', 'log', 'merge_track_char.log'),
+            ctx.path_to(ctx, 'OUT_DATA', 'netauctions_trackchar.dta')
+               ],
+        deps=[ctx.path_to(ctx, 'OUT_DATA', 'net_auctions.dta'),
+              ctx.path_to(ctx, 'OUT_DATA', 'vergabe_kkz_list.dta'),
+              ctx.path_to(ctx, 'OUT_DATA', 'bevoelkerungkkz.dta'),
+              ctx.path_to(ctx, 'IN_DATA', 'kfz.dta'),
+              ctx.path_to(ctx, 'OUT_DATA', 'flaeche.dta'),
+              ctx.path_to(ctx, 'OUT_DATA', 'einkommen.dta'),
+              ctx.path_to(ctx, 'IN_DATA', 'einkommen_early.dta'),
+        ],
+        name='merge_track_char'
+    )
+
+    ctx(
+        features='run_do_script',
+        source='prepare_gross_auctions.do',
+        target=[
+           ctx.path_to(ctx, 'OUT_DATA', 'log', 'prepare_gross_auctions.log'),
+            ctx.path_to(ctx, 'OUT_DATA', 'ga_with_costdata_merged.dta'),
+            ctx.path_to(ctx, 'OUT_DATA', 'ga_matlab.csv'),
+            ctx.path_to(ctx, 'OUT_DATA', 'ga_export.dta')
+        ],
+        deps=[ctx.path_to(ctx, 'OUT_DATA', 'ga_with_costdata.dta'),
+              ctx.path_to(ctx, 'OUT_DATA', 'ga_costfrequencydata.dta'),
+              ctx.path_to(ctx, 'OUT_DATA', 'n_pot_ga.dta')
+        ],
+        name='prepare_gross_auctions'
+    )
+
+    ctx(
+        features='run_do_script',
+        source='prepare_net_auctions.do',
+        target=[
+            ctx.path_to(ctx, 'OUT_DATA', 'log', 'prepare_net_auctions.log'),
+            ctx.path_to(ctx, 'OUT_DATA', 'na_with_costdata_merged.dta'),
+            ctx.path_to(ctx, 'OUT_DATA', 'na_matlab.csv'),
+            ctx.path_to(ctx, 'OUT_DATA', 'na_export.dta')
+        ],
+        deps=[ctx.path_to(ctx, 'OUT_DATA', 'netauctions_trackchar.dta'),
+              ctx.path_to(ctx, 'OUT_DATA', 'na_costfrequencydata.dta'),
+              ctx.path_to(ctx, 'OUT_DATA', 'n_pot_na.dta')
+        ],
+        name='prepare_net_auctions'
+    )
+    

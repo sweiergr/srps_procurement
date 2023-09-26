@@ -1,5 +1,5 @@
 # Bidder Asymmetries in Procurement Auctions: Efficiency versus Information
-This document describes the replication package that accompanies *Bidder Asymmetries in Procurement Auctions: Efficiency versus Information - Evidence from Railway Procurement* by Christoph Carnehl and Stefan Weiergraeber (IJIO, 2023).
+This document describes the replication package that accompanies *Bidder Asymmetries in Procurement Auctions: Efficiency versus Information - Evidence from Railway Passenger Services* by Christoph Carnehl and Stefan Weiergraeber (IJIO, 2023).
 
 ## Overview
 The code in this replication package constructs all tables and figures in the main text and the online appendix from the original data sources using a combination of Python, R, Stata, and MATLAB.

@@ -1,0 +1,66 @@
+#! python
+
+
+def build(ctx):
+    
+    ctx(
+        features='run_py_script',
+        source='format_er_bf.py',
+        deps=[
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'erbf_gross.csv'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'erbf_gross_legend.csv'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'erbf_net.csv'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'erbf_net_legend.csv')
+            ],
+        target=ctx.path_to(ctx, 'OUT_TABLES', 'estresultsbf.tex')
+        )
+
+    ctx(
+        features='run_py_script',
+        source='format_er_net2.py',
+        deps=[
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'er_net2.csv'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'er_net2_legend.csv')
+            ],
+        target=ctx.path_to(ctx, 'OUT_TABLES', 'estresultsnet2.tex')
+    )
+
+    ctx(
+        features='run_m_script',
+        source='format_alpharesults.m',
+        deps=[
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'postestimation_workspace_net.mat'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'rev_est_gross.mat')],
+        target=ctx.path_to(ctx, 'OUT_TABLES', 'estresultsalpha.tex')
+    )
+
+    ctx(
+        features='run_py_script',
+        source='format_cf_tables.py',
+        deps=[
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'cf_eff_data.csv'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'cf_rev_data_median.csv'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'cf_rev_data.csv')],
+        target=[ctx.path_to(ctx, 'OUT_TABLES', 'cfeffclean.tex'),
+                ctx.path_to(ctx, 'OUT_TABLES', 'cf2effclean.tex'),
+                ctx.path_to(ctx, 'OUT_TABLES', 'cfrevclean.tex'),
+                ctx.path_to(ctx, 'OUT_TABLES', 'cfrevcleansmallconsn.tex'),
+                ctx.path_to(ctx, 'OUT_TABLES', 'cfrevcleansmallcombined.tex')]
+    )
+
+    ctx(
+        features='run_m_script',
+        source='combine_rca_hist.m',
+        deps=[ctx.path_to(ctx, 'OUT_ANALYSIS', 'rca_data_gross.mat'),
+              ctx.path_to(ctx, 'OUT_ANALYSIS', 'rca_data_net.mat')],
+        target=ctx.path_to(ctx, 'OUT_FIGURES', 'rca_hist_combined.pdf')
+    )
+    
+    ctx(
+        features='run_py_script',
+        source='format_entry_results.py',
+        deps=[
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'entry_results_gross.csv'),
+            ctx.path_to(ctx, 'OUT_ANALYSIS', 'entry_results_net.csv')],
+        target=[ctx.path_to(ctx, 'OUT_TABLES', 'entryresults.tex')]
+    )
